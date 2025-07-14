@@ -13,8 +13,14 @@ class DataLoader:
         self.encoder_util = None
 
     def get_feature_names(self) -> list[str]:
+        """Returns a list of feature names."""
         # class column is excluded
         return [col for col in self.df.columns if col != "class"]
+
+    def get_feature_unique_values(self, feature_name: str) -> list[str]:
+        """Returns a list of unique values for a feature."""
+        return [self.encoder_util.inverse_transform(feature_name, val)
+                for val in self.df[feature_name].unique()]
 
     def load_and_encode(self, filepath: str) -> Dataset:
         """Load and encode csv file."""

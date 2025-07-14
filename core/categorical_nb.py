@@ -6,7 +6,7 @@ class CategoricalNaiveBayes:
 
     def __init__(self):
         """Initialize the classifier."""
-        self.feature_log_prob = None
+        self.feature_log_prob = {}
         self.class_log_prior = None
         self.classes = None
         self.n_features = None
@@ -14,11 +14,22 @@ class CategoricalNaiveBayes:
 
     def fit(self, dataset, labels):
         """Training the Naive Bayes classifier."""
-        self.n_samples, self.n_features = dataset.shape
-        self.classes, class_counts = np.unique(labels, return_counts=True)
-        self.class_log_prior = np.log(class_counts / self.n_samples)
-        self.feature_log_prob = {}
+        self._initialize_model(dataset, labels)
+        self._compute_class_priors(labels)
+        self._compute_conditional_probs(dataset, labels)
 
+    def _initialize_model(self, dataset, labels):
+        """Initialize the Naive Bayes classifier."""
+        self.n_samples, self.n_features = dataset.shape
+        self.classes, _ = np.unique(labels, return_counts=True)
+
+    def _compute_class_priors(self, labels):
+        """Compute the class priors."""
+        _, class_counts = np.unique(labels, return_counts=True)
+        self.class_log_prior = np.log(class_counts / self.n_samples)
+
+    def _compute_conditional_probs(self, dataset, labels):
+        """Compute the conditional probabilities."""
         for feature_idx in range(self.n_features):
             feature_values = np.unique(dataset[:, feature_idx])
             n_values = len(feature_values)
@@ -39,14 +50,19 @@ class CategoricalNaiveBayes:
 
     def _predict_single(self, sample):
         """Predict the class labels for the given sample."""
-        log_posteriors = []
-        for class_idx, cls in enumerate(self.classes):
-            log_prob = self.class_log_prior[class_idx]
-            for feature_idx, val in enumerate(sample):
-                key = (feature_idx, cls, val)
-                log_prob += self.feature_log_prob.get(key, np.log(1e-9))  # handle unseen
-            log_posteriors.append(log_prob)
+        log_posteriors = [
+            self._compute_log_posterior(sample, class_idx, cls)
+            for class_idx, cls in enumerate(self.classes)
+        ]
         return self.classes[np.argmax(log_posteriors)]
+
+    def _compute_log_posterior(self, sample, class_idx, cls):
+        """Compute the log-posterior."""
+        log_prob = self.class_log_prior[class_idx]
+        for feature_idx, val in enumerate(sample):
+            key = (feature_idx, cls, val)
+            log_prob += self.feature_log_prob.get(key, np.log(1e-9))  # handle unseen values
+        return log_prob
 
     def score(self, test_data, test_labels):
         """Calculate the accuracy of the Naive Bayes classifier."""
