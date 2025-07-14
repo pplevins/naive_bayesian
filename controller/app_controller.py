@@ -31,9 +31,10 @@ class AppController:
             self.handle_single_record(classifier_service)
 
     def handle_single_record(self, classifier_service):
+        """Handle a single record classification."""
         feature_names = self.data_loader.get_feature_names()
         try:
-            raw_input = self.ui.ask_single_record(feature_names)
+            raw_input = self.ui.ask_single_record(data_loader=self.data_loader)
             encoded = self.data_loader.encoder_util.transform_single_record(raw_input, feature_names)
             prediction_encoded = classifier_service.classify_single(encoded)
             label_encoder = self.data_loader.encoder_util.get_encoder("class")

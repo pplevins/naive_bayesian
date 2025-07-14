@@ -1,5 +1,7 @@
 import os
 
+from loader import DataLoader
+
 
 class CLIInterface:
     """A class representing a CLI interface for the UI."""
@@ -24,14 +26,16 @@ class CLIInterface:
                 return mode
             print("Invalid input. Please enter 'batch' or 'single'.")
 
-    def ask_single_record(self, feature_names: list[str]) -> dict:
+    def ask_single_record(self, data_loader: DataLoader) -> dict:
         """Ask the user for a single record."""
         print("Please enter values for the following features:")
         user_input = {}
+        feature_names = data_loader.get_feature_names()
         for feature in feature_names:
-            val = input(f"{feature}: ").strip()
+            feature_values = data_loader.get_feature_unique_values(feature)
+            val = input(f"{feature} - {feature_values}: ").strip()
             if not val:
                 print(f"Value for {feature} cannot be empty. Try again.")
-                return self.ask_single_record(feature_names)
+                return self.ask_single_record(data_loader)
             user_input[feature] = val
         return user_input
