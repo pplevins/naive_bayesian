@@ -1,6 +1,4 @@
-from loader import DataLoader
-from core import CategoricalNaiveBayes
-from service import RecordClassifier
+from controller import api_client
 
 
 class AppController:
@@ -9,37 +7,57 @@ class AppController:
     def __init__(self, ui):
         """Constructor."""
         self.ui = ui
-        self.data_loader = DataLoader()
-        self.classifier = CategoricalNaiveBayes()
 
     def run(self):
         """Run the application."""
-        path = self.ui.ask_file_path()
-        dataset = self.data_loader.load_and_encode(path)
+        self.ui.show_message("Welcome to the Naive-Bayes Classifier.")
 
-        train_set, test_set = dataset.split()
-        self.classifier.fit(train_set.X, train_set.y)
-        self.ui.show_message("Model trained successfully.")
+        self.train()
+        while True:
+            mode = self.ui.ask_mode()
+            if mode == "batch":
+                self.handle_batch()
+            elif mode == "single":
+                self.handle_single_record()
+            elif mode == "train":
+                self.train()
+            elif mode == "exit":
+                self.ui.show_message("Goodbye.")
+                break
 
-        classifier_service = RecordClassifier(self.classifier)
-
-        mode = self.ui.ask_mode()
-        if mode == "batch":
-            accuracy = classifier_service.evaluate_accuracy(test_set)
-            self.ui.show_message(f"Model Accuracy: {accuracy:.2%}")
-        elif mode == "single":
-            self.handle_single_record(classifier_service)
-
-    def handle_single_record(self, classifier_service):
-        """Handle a single record classification."""
-        feature_names = self.data_loader.get_feature_names()
+    def train(self):
+        """Train the classifier."""
         try:
-            raw_input = self.ui.ask_single_record(data_loader=self.data_loader)
-            encoded = self.data_loader.encoder_util.transform_single_record(raw_input, feature_names)
-            prediction_encoded = classifier_service.classify_single(encoded)
-            label_encoder = self.data_loader.encoder_util.get_encoder("class")
-            prediction_decoded = label_encoder.inverse_transform([prediction_encoded])[0]
-            self.ui.show_message(f"Predicted class: {prediction_decoded}")
-        except ValueError as e:
+            path = self.ui.ask_file_path()
+            self.ui.show_message("Training started.")
+            result = api_client.train_model(path)
+            self.ui.show_message(f"{result['message']}\nAccuracy: {result['accuracy']:.2%}")
+        except Exception as e:
             self.ui.show_message(f"Error: {e}")
-            self.handle_single_record(classifier_service)  # Retry
+            self.train()
+
+    # def test(self, classifier_service, test_set):
+    #     """Test the classifier."""
+    #     accuracy = classifier_service.evaluate_accuracy(test_set)
+    #     self.ui.show_message(f"Model Accuracy: {accuracy:.2%}")
+
+    def handle_batch(self):
+        """Handle a batch of data."""
+        try:
+            path = self.ui.ask_file_path()
+            result = api_client.classify_batch(path)
+            self.ui.show_message(f"Predictions:\n{result['predictions']}\n\nAccuracy: {result['accuracy']:.2%}")
+        except Exception as e:
+            self.ui.show_message(f"Error: {e}")
+            return
+
+    def handle_single_record(self):
+        """Handle a single record classification."""
+        try:
+            feature_dict = api_client.get_record_values()
+            raw_input = self.ui.ask_single_record(feature_dict)
+            prediction = api_client.classify_single_record(raw_input)
+            self.ui.show_message(f"Predicted class: {prediction}")
+        except Exception as e:
+            self.ui.show_message(f"Error: {e}")
+            self.handle_single_record()  # Retry

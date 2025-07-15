@@ -24,6 +24,7 @@ class DataLoader:
 
     def load_and_encode(self, filepath: str) -> Dataset:
         """Load and encode csv file."""
+        # TODO: Consdring use parameter use_existing_encoders=model.encoders for reusability
         self.df = pd.read_csv(filepath)
 
         # Dropping the index column
@@ -38,3 +39,11 @@ class DataLoader:
         X = df.drop(columns=["class"]).values
         y = df["class"].values
         return Dataset(X, y)
+
+    def decode_prediction(self, prediction):
+        """Decode prediction."""
+        return self.encoder_util.inverse_transform("class", prediction)
+
+    def encode_raw_input(self, raw_input):
+        feature_names = self.get_feature_names()
+        return self.encoder_util.transform_single_record(raw_input, feature_names)
