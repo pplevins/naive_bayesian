@@ -21,21 +21,21 @@ class CLIInterface:
     def ask_mode(self):
         """Ask the user for a mode."""
         while True:
-            mode = input("Choose mode - 'batch' or 'single': ").strip().lower()
-            if mode in ("batch", "single"):
+            mode = input(
+                "Choose mode - 'batch' or 'single'\nto train new data choose 'train', to exit choose 'exit': ").strip().lower()
+            if mode in ("batch", "single", "train", "exit"):
                 return mode
-            print("Invalid input. Please enter 'batch' or 'single'.")
+            print("Invalid input. Please enter 'batch' or 'single' or 'train' or 'exit'.")
 
-    def ask_single_record(self, data_loader: DataLoader) -> dict:
+    def ask_single_record(self, feature_values_dict: dict) -> dict:
         """Ask the user for a single record."""
         print("Please enter values for the following features:")
         user_input = {}
-        feature_names = data_loader.get_feature_names()
-        for feature in feature_names:
-            feature_values = data_loader.get_feature_unique_values(feature)
+        for feature in feature_values_dict.keys():
+            feature_values = feature_values_dict[feature]
             val = input(f"{feature} - {feature_values}: ").strip()
             if not val:
                 print(f"Value for {feature} cannot be empty. Try again.")
-                return self.ask_single_record(data_loader)
+                return self.ask_single_record(feature_values_dict)
             user_input[feature] = val
         return user_input
