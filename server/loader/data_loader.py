@@ -24,7 +24,7 @@ class DataLoader:
 
     def load_and_encode(self, filepath: str) -> Dataset:
         """Load and encode csv file."""
-        # TODO: Consdring use parameter use_existing_encoders=model.encoders for reusability
+        # TODO: Considering use parameter use_existing_encoders=model.encoders for reusability
         self.df = pd.read_csv(filepath)
 
         # Dropping the index column

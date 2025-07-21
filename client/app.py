@@ -1,4 +1,4 @@
-from controller import AppController
+from client.controller import AppController
 from ui import CLIInterface
 
 

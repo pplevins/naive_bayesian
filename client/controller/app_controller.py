@@ -1,4 +1,4 @@
-from controller import api_client
+from client.controller import api_client
 
 
 class AppController:
@@ -35,11 +35,6 @@ class AppController:
         except Exception as e:
             self.ui.show_message(f"Error: {e}")
             self.train()
-
-    # def test(self, classifier_service, test_set):
-    #     """Test the classifier."""
-    #     accuracy = classifier_service.evaluate_accuracy(test_set)
-    #     self.ui.show_message(f"Model Accuracy: {accuracy:.2%}")
 
     def handle_batch(self):
         """Handle a batch of data."""

@@ -1,7 +1,5 @@
 import os
 
-from loader import DataLoader
-
 
 class CLIInterface:
     """A class representing a CLI interface for the UI."""
