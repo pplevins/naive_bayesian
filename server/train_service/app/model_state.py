@@ -1,5 +1,6 @@
+import pickle
+
 from naivebayeslib import CategoricalNaiveBayes, DataLoader
-from predict_service.app.record_classifier import RecordClassifier
 
 
 class ModelState:
@@ -7,15 +8,18 @@ class ModelState:
         self.classifier = None
         self.data_loader = DataLoader()
         self.test_set = None
-        self.record_classifier = None
 
     def train_model(self, train_set):
         self.classifier = CategoricalNaiveBayes()
         self.classifier.fit(train_set.X, train_set.y)
-        self.record_classifier = RecordClassifier(self.classifier)
 
     def store_test_set(self, test_set):
         self.test_set = test_set
 
-    def is_model_ready(self):
-        return self.classifier is not None and self.data_loader is not None
+    def serialize_model_state(self):
+        return {
+            "classifier": pickle.dumps(self.classifier).hex(),
+            "df": pickle.dumps(self.data_loader.df).hex(),
+            "encoder_util": pickle.dumps(self.data_loader.encoder_util).hex(),
+            "test_set": pickle.dumps(self.test_set).hex()
+        }

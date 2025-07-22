@@ -1,7 +1,8 @@
 # 🧠 Naive Bayes Classifier with CLI & FastAPI Support
 
 A fully modular implementation of a Categorical Naive Bayes Classifier from scratch using Python.  
-Supports both **interactive CLI** and **FastAPI-based REST API**, making it ideal for educational, analytical, and experimental use cases.
+Supports both **interactive CLI** and **FastAPI-based REST API**, making it ideal for educational, analytical, and
+experimental use cases.
 
 ---
 
@@ -19,6 +20,7 @@ Supports both **interactive CLI** and **FastAPI-based REST API**, making it idea
 ---
 
 ## 🗂️ Project Structure
+
 ```
 naive_bayesian/
 ├── api_client.py # Client-side API interface
@@ -57,20 +59,21 @@ python app.py
 - Works with labeled categorical or integer-encoded datasets
 
 ## 🌐 API Usage
+
 ### ▶️ Start the API Server
 
 ```bash
-python main_api.py
+python main_train_api.py
 ```
 
 ### 🔧 API Endpoints
 
-| Method | Endpoint           | Description                      |
-|--------|--------------------|----------------------------------|
-| POST   | `/train`           | Upload CSV to train model        |
-| POST   | `/predict/record`  | Predict a single record (JSON)   |
-| POST   | `/predict/batch`   | Predict a batch (CSV upload)     |
-| GET    | `/features`        | Get list of feature names & values |
+| Method | Endpoint          | Description                        |
+|--------|-------------------|------------------------------------|
+| POST   | `/train`          | Upload CSV to train model          |
+| POST   | `/predict/record` | Predict a single record (JSON)     |
+| POST   | `/predict/batch`  | Predict a batch (CSV upload)       |
+| GET    | `/features`       | Get list of feature names & values |
 
 ### 📦 Example: Predict a Single Record
 
@@ -104,11 +107,13 @@ yes,senior,medium,yes,excellent
 ```
 
 ## ⚙️ Setup & Dependencies
+
 Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
+
 ## Requirements
 
 - Python 3.10+
