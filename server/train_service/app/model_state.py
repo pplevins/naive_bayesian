@@ -1,6 +1,5 @@
-from core import CategoricalNaiveBayes
-from loader import DataLoader
-from service import RecordClassifier
+from naivebayeslib import CategoricalNaiveBayes, DataLoader
+from predict_service.app.record_classifier import RecordClassifier
 
 
 class ModelState:
