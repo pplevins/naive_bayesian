@@ -1,41 +1,83 @@
-# 🧠 Naive Bayes Classifier with CLI & FastAPI Support
+# 🧠 Naive Bayes Classifier (Multi-container with CLI & FastAPI)
 
-A fully modular implementation of a Categorical Naive Bayes Classifier from scratch using Python.  
-Supports both **interactive CLI** and **FastAPI-based REST API**, making it ideal for educational, analytical, and
-experimental use cases.
+A fully modular implementation of a Categorical Naive Bayes Classifier from scratch using Python.
+Supports both:
+
+- **Command-line Interface (CLI)**
+- **Microservice-based architecture via FastAPI**, with separate containers for training and prediction.
 
 ---
 
 ## 🚀 Features
 
 - 📊 Categorical Naive Bayes implemented from scratch
-- 📂 Load and preprocess CSV datasets with categorical or numerical features
-- 🧪 70/30 train-test split with accuracy evaluation
-- 🔍 Single record prediction (interactive or via API)
-- 🔁 Batch prediction from CSV files
+- 🧪 70/30 train-test split with model evaluation
+- 📥 Batch & single-record prediction
+- 📂 CSV data preprocessing with category encoding/decoding
+- 🔌 Internal API Gateway from `train_service` → `predict_service`
+- 🐳 Dockerized & fully containerized (multi-container support)
+- 🌐 RESTful FastAPI endpoints with JSON communication
+- 🔐 Clean separation of logic (model, service, UI, API, etc.)
 - 🔧 Modular, testable, and extensible architecture
-- 🌐 FastAPI server for remote classification services
-- ✅ JSON-ready responses, schema-safe
+
+---
+
+## 🧱 Microservices Architecture
+
+```
+┌────────────────────┐         HTTP          ┌────────────────────┐
+│   CLI / Client     │ ────────────────────▶ │   Train Service    │
+└────────────────────┘                       └────────────────────┘
+                                                    │
+                             Internal API (Docker)  ▼
+                                           ┌────────────────────┐
+                                           │  Predict Service   │
+                                           └────────────────────┘
+```
 
 ---
 
 ## 🗂️ Project Structure
 
 ```
-naive_bayesian/
-├── api_client.py # Client-side API interface
-├── app_controller.py # CLI application controller
-├── model_state.py # Singleton to hold model and encoders on the server
-├── fastapi_server.py # REST API server implementation
-├── core/
-│ └── naive_bayes.py # Categorical Naive Bayes logic
-├── loader/
-│ └── data_loader.py # CSV loading and encoding utilities
-├── service/
-│ └── record_classifier.py # Wrapper for classification & evaluation
-├── ui/
-│ └── console_ui.py # User interface for CLI interaction
-├── requirements.txt
+naive_bayes_project/
+├── client/
+│   ├── controller/
+│   │   ├── api_client.py           # Client-side API interface
+│   │   └── app_controller.py       # CLI application controller
+│   ├── ui/
+│   │   └── cli_interface.py        # User interface for CLI interaction
+│   └── app.py
+│
+├── data_files/                     # CSV data files used for this project
+│
+├── server/
+│   ├── naivebayeslib/              # Shared Python library
+│   │   ├── core/
+│   │   │   └── categorical_nb.py   # Categorical Naive Bayes logic
+│   │   ├── loader/
+│   │   │   └── data_loader.py      # CSV loading and preprocessing
+│   │   ├── utils/
+│   │   │   └── label_encoder_util.py  # label encoding utilities
+│   │   └── __init__.py
+│   │
+│   ├── train_service/              # training service container
+│   │   ├── app/
+│   │   │   ├── fastapi_server.py   # REST API server implementation
+│   │   │   └── model_state.py      # Singleton to hold model and encoders on the server
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── predict_service/
+│   │   ├── app/
+│   │   │   ├── fastapi_server.py   # same as in train_service
+│   │   │   ├── record_classifier.py # Wrapper for classification & evaluation
+│   │   │   └── model_state.py      # same as in train_service
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   └── compose.yaml                # docker compose file for the multi-container server
+│
 └── README.md
 ```
 
@@ -58,24 +100,43 @@ python app.py
 - Supports retraining at any point
 - Works with labeled categorical or integer-encoded datasets
 
-## 🌐 API Usage
+### 🌐 API Endpoints
 
-### ▶️ Start the API Server
+| Service         | Method | Endpoint          | Description                        |
+|-----------------|--------|-------------------|------------------------------------|
+| Train Service   | POST   | `/train`          | Upload CSV and train model         |
+|                 |        |                   | Sends trained model to Predict API |
+| Predict Service | POST   | `/predict/record` | Predict a single record (JSON)     |
+|                 | POST   | `/predict/batch`  | Predict a batch of CSV records     |
+|                 | GET    | `/features`       | Return available features/values   |
+|                 | POST   | `/load-model`     | Receives model blob from training  |
+
+## 🐳 Docker Deployment
+
+### ▶️ Build & Run
 
 ```bash
-python main_train_api.py
+docker compose up --build
 ```
 
-### 🔧 API Endpoints
+> This spins up both `train_service` (port 8000) and `predict_service` (port 8001),
+> linked via internal API gateway.
 
-| Method | Endpoint          | Description                        |
-|--------|-------------------|------------------------------------|
-| POST   | `/train`          | Upload CSV to train model          |
-| POST   | `/predict/record` | Predict a single record (JSON)     |
-| POST   | `/predict/batch`  | Predict a batch (CSV upload)       |
-| GET    | `/features`       | Get list of feature names & values |
+## 🧪 CLI Client Usage
 
-### 📦 Example: Predict a Single Record
+### ▶️ Run CLI
+
+```bash
+python client/app.py
+```
+
+You can:
+
+- Upload a dataset to train
+- Predict a batch (CSV) or single record
+- Automatically query the `/features` endpoint to guide record creation
+
+### 📦 Sample API Call
 
 ```python
 import requests
@@ -87,8 +148,8 @@ record = {
     "credit_rating": "fair"
 }
 
-res = requests.post("http://localhost:8000/predict/record", json=record)
-print(res.json())
+response = requests.post("http://localhost:8001/predict/record", json=record)
+print(response.json())
 ```
 
 ## 📊 Dataset Requirements
@@ -125,10 +186,13 @@ pip install -r requirements.txt
 - Computes conditional probabilities (with Laplace smoothing)
 - Handles unseen categorical values at prediction time
 - Works entirely from scratch (no sklearn.naive_bayes used)
+- Can decode predictions back to original labels
+- Modular, testable design (SRP, OOP)
 
-### 📌 Extensibility Ideas
+### 📌 Future Extensions
 
-- Add support for numerical features via GaussianNB
-- Add support for model persistence (save/load)
-- Add frontend dashboard to interact with FastAPI
-- Dockerize the API
+- ✅ GaussianNB for numerical support
+- ✅ Model persistence to disk (load/save)
+- ✅ Kubernetes deployment (scalable)
+- ✅ Streamlit/React frontend for web interaction
+- ✅ Kafka for async prediction pipelines
