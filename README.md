@@ -83,23 +83,6 @@ naive_bayes_project/
 
 ---
 
-## 🧪 CLI Usage
-
-### ▶️ Running the App
-
-```bash
-python app.py
-```
-
-### 💡 CLI Features
-
-- Upload and train a model on a CSV dataset
-- Evaluate model on a 30% test set
-- Predict a single record by entering feature values
-- Predict a batch of records from another CSV file
-- Supports retraining at any point
-- Works with labeled categorical or integer-encoded datasets
-
 ### 🌐 API Endpoints
 
 | Service         | Method | Endpoint          | Description                        |
@@ -110,6 +93,8 @@ python app.py
 |                 | POST   | `/predict/batch`  | Predict a batch of CSV records     |
 |                 | GET    | `/features`       | Return available features/values   |
 |                 | POST   | `/load-model`     | Receives model blob from training  |
+
+---
 
 ## 🐳 Docker Deployment
 
@@ -122,19 +107,24 @@ docker compose up --build
 > This spins up both `train_service` (port 8000) and `predict_service` (port 8001),
 > linked via internal API gateway.
 
-## 🧪 CLI Client Usage
+---
 
-### ▶️ Run CLI
+## 🧪 CLI Usage
+
+### ▶️ Running the App
 
 ```bash
 python client/app.py
 ```
 
-You can:
+### 💡 CLI Features
 
-- Upload a dataset to train
-- Predict a batch (CSV) or single record
-- Automatically query the `/features` endpoint to guide record creation
+- Upload and train a model on a CSV dataset
+- Evaluate model on a 30% test set
+- Predict a single record by entering feature values
+- Predict a batch of records from another CSV file
+- Supports retraining at any point
+- Works with labeled categorical or integer-encoded datasets
 
 ### 📦 Sample API Call
 
@@ -151,6 +141,8 @@ record = {
 response = requests.post("http://localhost:8001/predict/record", json=record)
 print(response.json())
 ```
+
+---
 
 ## 📊 Dataset Requirements
 
@@ -179,6 +171,8 @@ pip install -r requirements.txt
 
 - Python 3.10+
 - fastapi, uvicorn, pandas, numpy, scikit-learn
+
+---
 
 ### 🧠 Model Internals
 
