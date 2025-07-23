@@ -1,0 +1,16 @@
+services:
+  train_service:
+    build:
+      context: .
+      dockerfile: train_service/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - predict_service
+
+  predict_service:
+    build:
+      context: .
+      dockerfile: predict_service/Dockerfile
+    ports:
+      - "8001:8001"

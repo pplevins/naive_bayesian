@@ -1,7 +1,7 @@
-from utils import LabelEncoderUtil
+from naivebayeslib.utils import LabelEncoderUtil
 
 import pandas as pd
-from domain import Dataset
+from naivebayeslib.domain import Dataset
 
 
 class DataLoader:

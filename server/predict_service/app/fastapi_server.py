@@ -3,28 +3,18 @@ import tempfile
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from service import ModelState
+from app.model_state import ModelState
 
 app = FastAPI()
 model = ModelState()
 
 
-@app.post("/train")
-async def train_model(file: UploadFile = File(...)):
+@app.post("/load-model")
+async def load_model(model_blob: dict):
     try:
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        temp.write(file.file.read())
-        temp.close()
-
-        dataset = model.data_loader.load_and_encode(temp.name)
-        os.unlink(temp.name)
-
-        train_set, test_set = dataset.split()
-        model.train_model(train_set)
-        model.store_test_set(test_set)
-
-        accuracy = model.record_classifier.evaluate_accuracy(test_set)
-        return {"message": "Model trained successfully.", "accuracy": accuracy}
+        model.deserialize_model_state(model_blob)
+        accuracy = model.record_classifier.evaluate_accuracy(model.test_set)
+        return {"status": "Model loaded into predict_service", "accuracy": accuracy}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
