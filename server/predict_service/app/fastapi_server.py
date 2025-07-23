@@ -3,7 +3,7 @@ import tempfile
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from predict_service.app.model_state import ModelState
+from app.model_state import ModelState
 
 app = FastAPI()
 model = ModelState()

@@ -1,7 +1,7 @@
 import pickle
 
 from naivebayeslib import CategoricalNaiveBayes, DataLoader
-from predict_service.app.record_classifier import RecordClassifier
+from app.record_classifier import RecordClassifier
 
 
 class ModelState:

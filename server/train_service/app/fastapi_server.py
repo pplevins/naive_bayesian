@@ -4,11 +4,11 @@ import tempfile
 import requests
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from train_service.app.model_state import ModelState
+from app.model_state import ModelState
 
 app = FastAPI()
 model = ModelState()
-PREDICT_SERVICE_URL = "http://127.0.0.1:8001/load-model"
+PREDICT_SERVICE_URL = "http://predict_service:8001/load-model"
 
 
 @app.post("/train")
