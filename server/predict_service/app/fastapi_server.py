@@ -3,7 +3,7 @@ import tempfile
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from app.model_state import ModelState
+from predict_service.app.model_state import ModelState  # TODO: Added predict_service for local running
 
 app = FastAPI()
 model = ModelState()
@@ -11,6 +11,7 @@ model = ModelState()
 
 @app.post("/load-model")
 async def load_model(model_blob: dict):
+    """Load a model sent from the train server, and evaluates its accuracy."""
     try:
         model.deserialize_model_state(model_blob)
         accuracy = model.record_classifier.evaluate_accuracy(model.test_set)
@@ -21,6 +22,7 @@ async def load_model(model_blob: dict):
 
 @app.post("/predict/batch")
 async def predict_batch(file: UploadFile = File(...)):
+    """Predict a batch of records from a file."""
     try:
         if not model.is_model_ready():
             raise HTTPException(status_code=400, detail="Model not trained yet.")
@@ -44,6 +46,7 @@ async def predict_batch(file: UploadFile = File(...)):
 
 @app.post("/predict/record")
 async def predict_record(record: dict):
+    """Predict a single record from sent by the client."""
     try:
         if not model.is_model_ready():
             raise HTTPException(status_code=400, detail="Model not trained yet.")
@@ -59,6 +62,7 @@ async def predict_record(record: dict):
 
 @app.get("/features")
 async def get_record_values():
+    """Get record features from the model."""
     try:
         if not model.is_model_ready():
             raise HTTPException(status_code=400, detail="Model not trained yet.")

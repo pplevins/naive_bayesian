@@ -4,15 +4,16 @@ import tempfile
 import requests
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from app.model_state import ModelState
+from train_service.app.model_state import ModelState  # TODO: Added train_service for local running
 
 app = FastAPI()
 model = ModelState()
-PREDICT_SERVICE_URL = "http://predict_service:8001/load-model"
+PREDICT_SERVICE_URL = "http://127.0.0.1:8001/load-model"
 
 
 @app.post("/train")
 async def train_model(file: UploadFile = File(...)):
+    """an API gateway for training a model and sending the trained model to the prediction server."""
     try:
         temp = tempfile.NamedTemporaryFile(delete=False)
         temp.write(file.file.read())
